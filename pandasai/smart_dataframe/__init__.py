@@ -63,6 +63,13 @@ class SmartDataframe:
 
         self.dataframe = self._agent.context.dfs[0]
 
+        # [kwk]
+        # the connector (self.dataframe) missed some info of the input arguments due to the process of using an agent to kind of create the connector (i.e. Agent([df]))
+        # here we add back the info to the connector
+        self.dataframe.description = description
+        self.dataframe.name = name
+        self.dataframe.custom_head = custom_head
+        
         self._table_description = description
         self._table_name = name
 
