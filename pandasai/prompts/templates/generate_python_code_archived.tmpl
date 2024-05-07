@@ -17,16 +17,13 @@ import pandas as pd
 ```
 {% endif %}
 {% include 'shared/vectordb_docs.tmpl' with context %}
-Based on the information provided above, answer the following query from user:
 {{ context.memory.get_last_message() }}
 
-### Final Instructions
-1. Variable `dfs: list[pd.DataFrame]` is already declared, please directly use it.
+Variable `dfs: list[pd.DataFrame]` is already declared.
 
-2. At the end, declare "result" variable as a dictionary of type and value.
+At the end, declare "result" variable as a dictionary of type and value.
 {% if viz_lib %}
-3. If you are asked to plot a chart, use "{{viz_lib}}" for charts, save as png.
+If you are asked to plot a chart, use "{{viz_lib}}" for charts, save as png.
 {% endif %}
 
-### Your turn
 Generate python code and return full updated code:

@@ -100,7 +100,7 @@ class LLM:
         except SyntaxError:
             return False
 
-    def _extract_code(self, response: str, separator: str = "```") -> str:
+    def _extract_code(self, response: str, is_retry_mode=False, separator: str = "```") -> str:
         """
         Extract the code from the response.
 
@@ -118,7 +118,12 @@ class LLM:
         code = response
 
         if separator not in response:
-            raise NoCodeFoundError("No code found in the response")
+            if is_retry_mode:
+                # [kwk]
+                # if error _correction_pipeline is called and it's fixing the python code, 
+                # the llm will normally return only the python code without inserting it back to the answer template
+                return code
+            raise NoCodeFoundError(f"No code found in the following response\nResponse:{response}")
 
         if len(code.split(separator)) > 1:
             code = code.split(separator)[1]
@@ -198,7 +203,10 @@ class LLM:
 
         """
         response = self.call(instruction, context)
-        return self._extract_code(response)
+        is_retry_mode = False
+        if "Fix the python code" in instruction.to_string():
+            is_retry_mode = True
+        return self._extract_code(response, is_retry_mode=is_retry_mode)
 
 
 class BaseOpenAI(LLM):
