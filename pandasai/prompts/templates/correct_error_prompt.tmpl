@@ -1,12 +1,29 @@
 {% for df in context.dfs %}{% set index = loop.index %}{% include 'shared/dataframe.tmpl' with context %}{% endfor %}
 
-The user asked the following question:
+### The user asked the following question:
 {{context.memory.get_conversation()}}
 
-You generated this python code:
+### You generated this python code:
 {{code}}
 
-It fails with the following error:
+### It fails with the following error:
 {{error}}
 
+### Task description Reminder
+Update this initial code:
+```python
+# TODO: import the required dependencies
+import pandas as pd
+
+# Write code here
+
+# Declare result var: {% include 'shared/output_type_template.tmpl' with context %}
+```
+
+### Final Instructions Reminder
+1. Variable `dfs: list[pd.DataFrame]` is already declared, please directly use it. Note that you may need to use more than one dataframe from this list.
+
+2. At the end, declare "result" variable as a dictionary of type and value.
+
+### Your turn
 Fix the python code above and return the new python code:
