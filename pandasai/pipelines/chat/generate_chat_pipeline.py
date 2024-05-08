@@ -285,7 +285,7 @@ class GenerateChatPipeline:
         self._logger.log(f"Executing Pipeline: {self.__class__.__name__}")
 
         # Reset intermediate values
-        self.context.reset_intermediate_values()
+        self.context.reset_intermediate_values(exclude_list=["last_code_generated", "last_code_executed", "last_result"])
 
         # Start New Tracking for Query
         self.query_exec_tracker.start_new_track(input)

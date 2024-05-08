@@ -44,8 +44,12 @@ class PipelineContext:
 
         self._initial_values = initial_values
 
-    def reset_intermediate_values(self):
+    def reset_intermediate_values(self, exclude_list=[]):
+        tmp = self.intermediate_values
         self.intermediate_values = self._initial_values or {}
+        for v in exclude_list:
+            if tmp.get(v, ""):
+                self.intermediate_values[v] = tmp.get(v, "")
 
     def add(self, key: str, value: Any):
         self.intermediate_values[key] = value
