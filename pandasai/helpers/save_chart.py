@@ -29,6 +29,23 @@ def add_save_chart(
         save_charts_path.mkdir(parents=True, exist_ok=True)
 
         save_charts_file = save_charts_path / f"{file_name}.png"
+        
+        # to ensure the plt can display Chinese characters properly
+        if "\nplt" in code:
+            # Find the index of the first occurrence of "\nplt"
+            index = code.find("\nplt")
+            code_to_add = "\nplt.rcParams['font.family'] = ['Arial Unicode MS', 'Arial']"
+            code = code[:index] + code_to_add + code[index:]
+        
+        # to ensure the resulted plots are not cropped
+        if "plt.savefig" in code and "bbox_inches='tight'" not in code:
+            # Find the index of the first occurrence of "plt.savefig"
+            index = code.find("plt.savefig")
+
+            # Insert the argument 'bbox_inches='tight'' before the closing parenthesis
+            insert_index = code.find(")", index)
+            if insert_index != -1:  # If closing parenthesis is found
+                code = code[:insert_index] + ", bbox_inches='tight'" + code[insert_index:]
 
         if "temp_chart.png" in code:
             code = code.replace("temp_chart.png", save_charts_file.as_posix())

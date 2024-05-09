@@ -24,6 +24,8 @@ import pandas as pd
 1. Variable `dfs: list[pd.DataFrame]` is already declared, please directly use it. Note that you may need to use more than one dataframe from this list.
 
 2. At the end, declare "result" variable as a dictionary of type and value.
-
+{% if context.config.data_viz_library %}
+3. If you are asked to plot a chart, use "{{context.config.data_viz_library}}" for charts, save as png.
+{% endif %}
 ### Your turn
 Fix the python code above and return the new python code:
