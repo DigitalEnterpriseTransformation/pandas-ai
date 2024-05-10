@@ -31,7 +31,7 @@ def add_save_chart(
         save_charts_file = save_charts_path / f"{file_name}.png"
         
         # to ensure the plt can display Chinese characters properly
-        if "\nplt" in code:
+        if "\nplt" in code and "plt.rcParams" not in code:
             # Find the index of the first occurrence of "\nplt"
             index = code.find("\nplt")
             code_to_add = "\nplt.rcParams['font.family'] = ['Arial Unicode MS', 'Arial']"
