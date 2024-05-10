@@ -204,7 +204,7 @@ class CodeExecution(BaseLogicUnit):
 
     def _get_originals(self, dfs):
         """
-        Get original dfs
+        Get original dfs from connectors
 
         Args:
             dfs (list): List of dfs
@@ -225,7 +225,11 @@ class CodeExecution(BaseLogicUnit):
             df.execute()
             # df.load_connector(partial=len(filters) > 0)
 
-            original_dfs.append(df.pandas_df)
+            # here the df is a pandas connector
+            # instead of pass in the original dataframe stored in the connector
+            # we pass in a copy of it such that during code execution, the original dataframe stay untouched
+            # so during the next time of code execution, the dfs inside the environment will be also replaced when we call _required_df and _get_originals again.
+            original_dfs.append(df.pandas_df.copy())
 
         return original_dfs
 
