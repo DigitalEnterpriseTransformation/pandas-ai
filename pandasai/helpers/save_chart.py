@@ -33,9 +33,12 @@ def add_save_chart(
         # to ensure the plt can display Chinese characters properly
         if "\nplt" in code and "plt.rcParams" not in code:
             # Find the index of the first occurrence of "\nplt"
-            index = code.find("\nplt")
-            code_to_add = "\nplt.rcParams['font.family'] = ['Arial Unicode MS', 'Arial']"
-            code = code[:index] + code_to_add + code[index:]
+            import re
+            match = re.search(r"\n.*plt\.", code)
+            if match:
+                index = match.start()
+                code_to_add = "\nplt.rcParams['font.family'] = ['Arial Unicode MS', 'Arial']"
+                code = code[:index] + code_to_add + code[index:]
         
         # to ensure the resulted plots are not cropped
         if "plt.savefig" in code and "bbox_inches='tight'" not in code:

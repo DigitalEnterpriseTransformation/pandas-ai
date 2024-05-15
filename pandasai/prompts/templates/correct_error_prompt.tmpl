@@ -9,6 +9,11 @@
 ### It fails with the following error:
 {{error}}
 
+### Additional Functions Reminder
+{% if context.skills_manager.has_skills() %}
+{{context.skills_manager.prompt_display()}}
+{% endif %}
+
 ### Task description Reminder
 Update this initial code:
 ```python
