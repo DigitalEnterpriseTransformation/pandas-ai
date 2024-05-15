@@ -69,7 +69,7 @@ class LLM:
     def _polish_code(self, code: str) -> str:
         """
         Polish the code by removing the leading "python" or "py",  \
-        removing the imports and removing trailing spaces and new lines.
+        removing surrounding '`' characters  and removing trailing spaces and new lines.
 
         Args:
             code (str): A string of Python code.
@@ -117,18 +117,22 @@ class LLM:
         """
         code = response
 
-        if separator not in response:
-            if is_retry_mode:
-                # [kwk]
-                # if error _correction_pipeline is called and it's fixing the python code, 
-                # the llm will normally return only the python code without inserting it back to the answer template
-                return code
-            raise NoCodeFoundError(f"No code found in the following response\nResponse:{response}")
+        # if separator not in response:
+        #     if is_retry_mode:
+        #         # [kwk]
+        #         # if error _correction_pipeline is called and it's fixing the python code, 
+        #         # the llm will normally return only the python code without inserting it back to the answer template
+        #         return code
+        #     raise NoCodeFoundError(f"No code found in the following response\nResponse:{response}")
 
-        if len(code.split(separator)) > 1:
+        # If separator is in the response then we want the code in between only
+        if separator in response and len(code.split(separator)) > 1:
             code = code.split(separator)[1]
-
         code = self._polish_code(code)
+
+        # Even if the separator is not in the response, the output might still be valid python code
+        if not self._is_python_code(code):
+            raise NoCodeFoundError("No code found in the response")
 
         return code
 
