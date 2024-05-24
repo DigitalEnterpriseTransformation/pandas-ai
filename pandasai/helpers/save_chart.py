@@ -7,9 +7,9 @@ def load_unicode_fonts():
     import matplotlib as mpl
     import matplotlib.font_manager as fm
 
-    fe = fm.FontEntry(fname='MSYH.TTC', name='MSYH')
+    fe = fm.FontEntry(fname='../fonts/MSYH.TTC', name='MSYH')
     fm.fontManager.ttflist.insert(0, fe) # or append is fine
-    fe2 = fm.FontEntry(fname='Arial.ttf', name='Arial')
+    fe2 = fm.FontEntry(fname='../fonts/Arial.ttf', name='Arial')
     fm.fontManager.ttflist.insert(0, fe2) # or append is fine
     mpl.rcParams['font.family'] = [fe.name, fe2.name] # = 'your custom ttf font name'
     
