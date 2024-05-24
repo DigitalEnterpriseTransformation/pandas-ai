@@ -3,13 +3,13 @@ from pathlib import Path
 
 from .logger import Logger
 
+import matplotlib as mpl
+import matplotlib.font_manager as fm
+    
 def load_unicode_fonts():
-    import matplotlib as mpl
-    import matplotlib.font_manager as fm
-
-    fe = fm.FontEntry(fname='../fonts/MSYH.TTC', name='MSYH')
+    fe = fm.FontEntry(fname='../fonts/MSYH.TTC', name='kkk')
     fm.fontManager.ttflist.insert(0, fe) # or append is fine
-    fe2 = fm.FontEntry(fname='../fonts/Arial.ttf', name='Arial')
+    fe2 = fm.FontEntry(fname='../fonts/Arial.ttf', name='rrr')
     fm.fontManager.ttflist.insert(0, fe2) # or append is fine
     mpl.rcParams['font.family'] = [fe.name, fe2.name] # = 'your custom ttf font name'
     
@@ -47,7 +47,7 @@ def add_save_chart(
             match = re.search(r"\n.*plt\.", code)
             if match:
                 index = match.start()
-                code_to_add = "\nplt.rcParams['font.family'] = ['MSYH', 'Arial']"
+                code_to_add = "\nplt.rcParams['font.family'] = ['kkk', 'rrr']"
                 code = code[:index] + code_to_add + code[index:]
         
         # to ensure the resulted plots are not cropped
