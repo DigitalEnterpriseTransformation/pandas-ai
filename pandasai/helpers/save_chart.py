@@ -6,13 +6,6 @@ from .logger import Logger
 import matplotlib as mpl
 import matplotlib.font_manager as fm
     
-def load_unicode_fonts():
-    fe = fm.FontEntry(fname='../fonts/MSYH.TTC', name='kkk')
-    fm.fontManager.ttflist.insert(0, fe) # or append is fine
-    fe2 = fm.FontEntry(fname='../fonts/Arial.ttf', name='rrr')
-    fm.fontManager.ttflist.insert(0, fe2) # or append is fine
-    mpl.rcParams['font.family'] = [fe.name, fe2.name] # = 'your custom ttf font name'
-    
 def add_save_chart(
     code: str,
     logger: Logger,
@@ -42,7 +35,6 @@ def add_save_chart(
         # to ensure the plt can display Chinese characters properly
         if "\nplt" in code and "plt.rcParams" not in code:
             # Find the index of the first occurrence of "\nplt"
-            load_unicode_fonts()
             import re
             match = re.search(r"\n.*plt\.", code)
             if match:
