@@ -14,11 +14,15 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": ["index", "getting-started"]
+      "pages": ["intro", "getting-started"]
     },
     {
       "group": "Essentials",
       "pages": ["connectors", "llms", "pipelines"]
+    },
+    {
+      "group": "Advanced agents",
+      "pages": ["semantic-agent"]
     },
     {
       "group": "Advanced usage",
