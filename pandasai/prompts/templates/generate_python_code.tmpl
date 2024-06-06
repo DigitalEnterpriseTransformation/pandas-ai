@@ -32,6 +32,9 @@ import pandas as pd
 3. Any kind of data you include inside the "result" variable should be a single dataframe, if you have more info to output, try to merge all of them into a single dataframe.
 
 4. If you are asked to plot a chart, use "{{viz_lib}}" for charts, save as png.
+
+5. Always use `str.contains()` for filtering string values in a pandas DataFrame. Use `case=False` for case-insensitive matching. Do not use `==` for string comparisons.
+    - For example: Instead of `hlaptop_sales = df[df['product'] == 'laptop']`, use `laptop_sales = df[df['product'].str.contains('laptop', case=False, na=False)]`
 {% endif %}
 
 ### Your turn
