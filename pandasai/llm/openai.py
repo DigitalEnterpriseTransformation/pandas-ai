@@ -11,7 +11,9 @@ Example:
 import os
 from typing import Any, Dict, Optional
 
+import httpx
 import openai
+from openai import DefaultHttpxClient
 
 from ..exceptions import APIKeyNotFoundError, UnsupportedModelError
 from ..helpers import load_dotenv
@@ -55,9 +57,9 @@ class OpenAI(BaseOpenAI):
     model: str = "gpt-3.5-turbo"
 
     def __init__(
-        self,
-        api_token: Optional[str] = None,
-        **kwargs,
+            self,
+            api_token: Optional[str] = None,
+            **kwargs,
     ):
         """
         __init__ method of OpenAI Class
@@ -73,11 +75,15 @@ class OpenAI(BaseOpenAI):
             raise APIKeyNotFoundError("OpenAI API key is required")
 
         self.api_base = (
-            kwargs.get("api_base") or os.getenv("OPENAI_API_BASE") or self.api_base
+                kwargs.get("api_base") or os.getenv("OPENAI_API_BASE") or self.api_base
         )
         self.openai_proxy = kwargs.get("openai_proxy") or os.getenv("OPENAI_PROXY")
         if self.openai_proxy:
             openai.proxy = {"http": self.openai_proxy, "https": self.openai_proxy}
+            self.http_client = DefaultHttpxClient(
+                proxies=self.openai_proxy,
+                transport=httpx.HTTPTransport(local_address="0.0.0.0"),
+            )
 
         self._set_params(**kwargs)
         # set the client
