@@ -225,11 +225,7 @@ class CodeExecution(BaseLogicUnit):
             df.execute()
             # df.load_connector(partial=len(filters) > 0)
 
-            # here the df is a pandas connector
-            # instead of pass in the original dataframe stored in the connector
-            # we pass in a copy of it such that during code execution, the original dataframe stay untouched
-            # so during the next time of code execution, the dfs inside the environment will be also replaced when we call _required_df and _get_originals again.
-            original_dfs.append(df.pandas_df.copy())
+            original_dfs.append(df.pandas_df)
 
         return original_dfs
 

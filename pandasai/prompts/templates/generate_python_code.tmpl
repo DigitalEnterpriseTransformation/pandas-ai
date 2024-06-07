@@ -35,6 +35,9 @@ import pandas as pd
 
 5. Always use `str.contains()` for filtering string values in a pandas DataFrame. Use `case=False` for case-insensitive matching. Do not use `==` for string comparisons.
     - For example: Instead of `hlaptop_sales = df[df['product'] == 'laptop']`, use `laptop_sales = df[df['product'].str.contains('laptop', case=False, na=False)]`
+
+6. In addition, when filtering based on a substring, ensure the term is specific enough to avoid unintended matches but at the same informative enough that do not lose any condition
+    - For example: Instead of `df[df['所在地址'].str.contains('苏州润晶高纯化工科技股份有限公司')] where or "股份有限公司" can be a general term, or '润晶高纯化工' which loses the information about '苏州' and '科技', use `df[df['公司名称'].str.contains('苏州润晶高纯化工科技', case=False, na=False)]` to get the best outcome...
 {% endif %}
 
 ### Your turn
