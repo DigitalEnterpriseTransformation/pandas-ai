@@ -46,5 +46,8 @@ import pandas as pd
                    or using `df[df['公司名称'].str.contains('润晶高纯化工科技')] which loses the information about '苏州', 
                    **use `df[df['公司名称'].str.contains('苏州润晶高纯化工科技', case=False, na=False)]` to get the best outcome.**
 
+### The Must-Follow Instruction
+For privacy purpose, when plotting a chart or inside the result var, you should never use any company name directly from the dataframe column such as '公司名称' and '客户名称', you should always use the company name from the column '脱敏公司名称'.
+
 ### Your turn
 Fix the python code above and return the new python code:
