@@ -81,4 +81,5 @@ class SkillsManager:
         return f"You are already provided with the following functions that you can call:\n{self}"
 
     def to_object(self) -> str:
-        return [skill.stringify() for skill in self.skills]
+        # hide the desensitization method from the agent, the method will be mannually added during code cleaning
+        return [skill.stringify() for skill in self.skills if skill.name != 'desensitized_plot']

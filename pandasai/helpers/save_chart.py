@@ -42,6 +42,15 @@ def add_save_chart(
                 code_to_add = "\nplt.rcParams['font.family'] = ['kkk', 'rrr']"
                 code = code[:index] + code_to_add + code[index:]
         
+        # company name desensitization
+        if "plt.savefig" in code and "desensitized_plot" not in code:
+            index = code.find("plt.savefig")
+            if 'plt.subplots' in code and 'fig' in code:
+                code_to_add = "desensitized_plot(fig, use_subplots=True)\n" 
+            else:
+                code_to_add = "desensitized_plot(plt, )\n" 
+            code = code[:index] + code_to_add + code[index:]
+            
         # to ensure the resulted plots are not cropped
         if "plt.savefig" in code and "bbox_inches='tight'" not in code:
             # Find the index of the first occurrence of "plt.savefig"
