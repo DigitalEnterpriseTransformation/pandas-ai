@@ -93,6 +93,10 @@ class CodeCleaning(BaseLogicUnit):
         code_to_run = input
         try:
             code_to_run = self.get_code_to_run(input, code_context)
+            company_names_mapping = context.config.company_names_mapping
+            if company_names_mapping:
+                for desensitized_name, original_name in company_names_mapping.items():
+                    code_to_run = code_to_run.replace(desensitized_name, original_name)
         except Exception as e:
             traceback_errors = traceback.format_exc()
             if self.on_failure:
