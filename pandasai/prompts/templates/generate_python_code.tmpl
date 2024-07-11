@@ -44,6 +44,60 @@ import pandas as pd
                    or using `df[df['公司名称'].str.contains('润晶高纯化工科技')] which loses the information about '苏州', 
                    **use `df[df['公司名称'].str.contains('苏州润晶高纯化工科技', case=False, na=False)]` to get the best outcome.**
 
+8. Be extra careful about the columns and their values you want to perform merging on, make sure the columns' values you are performing merging on are what you expected or you will get all nan values if they are not compatible.
+
+9. The texts in chart plotted and notes should be in the same language as the user's query.
+
+### Perfect Examples
+#### Question: 能提供北京北方华创微电子装备有限公司自今年年初以来每个月的成交金额与去年同期的比较曲线吗？
+
+#### Code generated:
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Filter the orders for Beijing Northern Huachuang Microelectronics Equipment Co., Ltd.
+company_name = '北京北方华创微电子装备有限公司'
+orders_df = dfs[x]
+orders_company = orders_df[orders_df['客户名称'].str.contains(company_name, case=False, na=False)]
+
+# Filter orders for this year and last year
+current_year = 2024
+last_year = current_year - 1
+orders_this_year = orders_company[(orders_company['创建时间'].dt.year == current_year)]
+orders_last_year = orders_company[(orders_company['创建时间'].dt.year == last_year)]
+
+# Group by month and calculate the total order amount
+# Note that we only group by the month value so that we could compare the order amount across different years for each month
+orders_this_year_monthly = orders_this_year.groupby(orders_this_year['创建时间'].dt.month)['成交金额'].sum().reset_index()
+orders_last_year_monthly = orders_last_year.groupby(orders_last_year['创建时间'].dt.month)['成交金额'].sum().reset_index()
+
+# Merge the two dataframes for plotting
+monthly_orders = pd.merge(orders_this_year_monthly, orders_last_year_monthly, left_on='创建时间', right_on='创建时间', how='outer', suffixes=('_this_year', '_last_year'))
+
+# Fill NaN values with 0 for missing months
+monthly_orders['成交金额_this_year'] = monthly_orders['成交金额_this_year'].fillna(0)
+monthly_orders['成交金额_last_year'] = monthly_orders['成交金额_last_year'].fillna(0)
+
+# Plot the monthly order amounts for this year and last year
+plt.figure(figsize=(len(monthly_orders) * 1.5, 8))
+sns.lineplot(data=monthly_orders, x='创建时间', y='成交金额_this_year', label='This Year')
+sns.lineplot(data=monthly_orders, x='创建时间', y='成交金额_last_year', label='Last Year')
+plt.title(f'{company_name}月度成交金额')
+plt.xlabel('月份')
+plt.ylabel('成交金额')
+plt.legend()
+plt.savefig('sales_comparison.png')
+
+# Declare result var
+result = {
+    "type": "plot",
+    "value": "sales_comparison.png",
+    "data": monthly_orders,
+    "note": f"该图表显示了{company_name}当前年度和上一年的月度销售对比。数据按月过滤和分组，以计算每个月的总销售金额。"
+}
+
+
 ### Your turn
 Based on the information provided above, answer the following query from user:
 {{ context.memory.get_last_message() }}

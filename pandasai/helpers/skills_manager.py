@@ -69,7 +69,7 @@ class SkillsManager:
         Returns:
             str: _description_
         """
-        return "".join(str(skill) for skill in self.skills)
+        return "".join(str(skill) for skill in self.skills if skill.name != 'desensitized_plot')
 
     def prompt_display(self) -> Optional[str]:
         """

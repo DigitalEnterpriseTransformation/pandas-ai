@@ -5,6 +5,19 @@ import yaml
 
 import pandasai.pandas as pd
 
+from yaml import CDumper
+from yaml.representer import SafeRepresenter
+import datetime
+
+
+class TSDumper(CDumper):
+    pass
+
+def timestamp_representer(dumper, data):
+    return SafeRepresenter.represent_datetime(dumper, data.to_pydatetime())
+
+TSDumper.add_representer(datetime.datetime, SafeRepresenter.represent_datetime)
+TSDumper.add_representer(pd.Timestamp, timestamp_representer)
 
 class DataframeSerializerType(Enum):
     JSON = 1
@@ -119,7 +132,10 @@ class DataframeSerializer:
             }
 
             if not extras.get("enforce_privacy") or df.custom_head is not None:
-                col_info["samples"] = df_head[col_name].head().tolist()
+                # col_info["samples"] = df_head[col_name].head().tolist()
+                
+                # head() will always return 5 rows no matter how many in the custom heads
+                col_info["samples"] = df_head[col_name].tolist()
 
             # Add column description if available
             if df.field_descriptions and isinstance(df.field_descriptions, dict):
@@ -160,7 +176,7 @@ class DataframeSerializer:
 
     def convert_df_to_yml(self, df: pd.DataFrame, extras: dict) -> str:
         json_df = self.convert_df_to_json(df, extras)
-        yml_str = yaml.dump(json_df, sort_keys=False, allow_unicode=True)
+        yml_str = yaml.dump(json_df, sort_keys=False, allow_unicode=True, default_flow_style=None, Dumper=TSDumper,)
         if "is_direct_sql" in extras and extras["is_direct_sql"]:
             return f"<table>\n{yml_str}\n</table>\n"
         return yml_str
