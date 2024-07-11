@@ -36,66 +36,76 @@ import pandas as pd
 {% endif %}
 5. When plotting, please do not set a fix size of the image such as using `plt.figure(figsize=(10, 8))`, you should use some variable such as dataframe's row number for reference to find the suitable size, e.g. plt.figure(figsize=(len(df) * 1.5, 8))
 
-6. Always use `str.contains()` for filtering string values in a pandas DataFrame. Use `case=False` for case-insensitive matching. Do not use `==` for string comparisons.
-    - For example: Instead of `hlaptop_sales = df[df['product'] == 'laptop']`, use `laptop_sales = df[df['product'].str.contains('laptop', case=False, na=False)]`
+6. During filtering or string matching in dataframes,
+    - If the matching keyword is simple and need to be very exact such as person name, order number, use exact match
+        - For example: df[df['销售人员'] == '张三']
+    - If the you think user's keyword can be slightly simplified, use `str.contains()` for substring filtering / matching in a pandas DataFrame. Use `case=False` for case-insensitive matching. Do not use `==` for string comparisons.
+        - For example: Instead of `df[df['所在城市'] == '上海']`, use `df[df['所在城市'].str.contains('上海', case=False, na=False)]`
+    - For complex terms that substring matching or exact matching won't work. Use `get_best_matching_string` for fuzzy matching especitally in the case of company names.
+        - For example: get_best_matching_string(orders_df['母公司名称'], '上海一汽') >>> '一汽（上海）有限公司'
+7. Be extra careful about the columns and their values you want to perform merging on, make sure the columns' values you are performing merging on are what you expected or you will get all nan values if they are not compatible.
 
-7. In addition, when filtering based on a substring, ensure the term is specific enough to avoid unintended matches but at the same time, informative enough that do not lose any specific identifiers
-    - For example: Instead of filtering using `df[df['公司名称'].str.contains('苏州润晶高纯化工科技股份有限公司')] where "股份有限公司" can be a very general term, 
-                   or using `df[df['公司名称'].str.contains('润晶高纯化工科技')] which loses the information about '苏州', 
-                   **use `df[df['公司名称'].str.contains('苏州润晶高纯化工科技', case=False, na=False)]` to get the best outcome.**
-
-8. Be extra careful about the columns and their values you want to perform merging on, make sure the columns' values you are performing merging on are what you expected or you will get all nan values if they are not compatible.
-
-9. The texts in chart plotted and notes should be in the same language as the user's query.
+8. The texts in chart plotted and notes should be in the same language as the user's query.
 
 ### Perfect Examples
-#### Question: 能提供北京北方华创微电子装备有限公司自今年年初以来每个月的成交金额与去年同期的比较曲线吗？
+#### Question: 能提供北京华创自今年年初以来每个月的成交金额与去年同期的比较曲线吗？
 
 #### Code generated:
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Filter the orders for Beijing Northern Huachuang Microelectronics Equipment Co., Ltd.
-company_name = '北京北方华创微电子装备有限公司'
+# Get the exact company name of '北京华创' in the dataframe using `get_best_matching_string` since exact match or substring match won't work
+company_name = '北京华创'
 orders_df = dfs[x]
-orders_company = orders_df[orders_df['客户名称'].str.contains(company_name, case=False, na=False)]
+exact_company_name = get_best_matching_string(orders_df['客户名称'], company_name)
 
-# Filter orders for this year and last year
-current_year = 2024
-last_year = current_year - 1
-orders_this_year = orders_company[(orders_company['创建时间'].dt.year == current_year)]
-orders_last_year = orders_company[(orders_company['创建时间'].dt.year == last_year)]
+# Check if there is a match or not
+if not exact_company_name:
+    result = {
+        "type": "string",
+        "value": f'在数据库中并没有找到与‘{company_name}’相关的订单信息，请给出更详细和准确的公司名。',
+        'note': "通过get_best_matching_string方法没有找到相关公司名，因为公司名不够具体或者数据库中没有相关的订单。"
+    }
+else:
+    # Filter the orders for '北京华创'
+    orders_company = orders_df[orders_df['客户名称'] == exact_company_name]
+    
+    # Filter orders for this year and last year
+    current_year = check_current_datetime().year
+    last_year = current_year - 1
+    orders_this_year = orders_company[orders_company['创建时间'].dt.year == current_year]
+    orders_last_year = orders_company[orders_company['创建时间'].dt.year == last_year]
 
-# Group by month and calculate the total order amount
-# Note that we only group by the month value so that we could compare the order amount across different years for each month
-orders_this_year_monthly = orders_this_year.groupby(orders_this_year['创建时间'].dt.month)['成交金额'].sum().reset_index()
-orders_last_year_monthly = orders_last_year.groupby(orders_last_year['创建时间'].dt.month)['成交金额'].sum().reset_index()
+    # Group by month and calculate the total order amount
+    # Note that we only group by the month value so that we could compare the order amount across different years for each month
+    orders_this_year_monthly = orders_this_year.groupby(orders_this_year['创建时间'].dt.month)['成交金额'].sum().reset_index()
+    orders_last_year_monthly = orders_last_year.groupby(orders_last_year['创建时间'].dt.month)['成交金额'].sum().reset_index()
 
-# Merge the two dataframes for plotting
-monthly_orders = pd.merge(orders_this_year_monthly, orders_last_year_monthly, left_on='创建时间', right_on='创建时间', how='outer', suffixes=('_this_year', '_last_year'))
+    # Merge the two dataframes for plotting
+    monthly_orders = pd.merge(orders_this_year_monthly, orders_last_year_monthly, left_on='创建时间', right_on='创建时间', how='outer', suffixes=('_this_year', '_last_year'))
+    
+    # Fill NaN values with 0 for missing months
+    monthly_orders['成交金额_this_year'] = monthly_orders['成交金额_this_year'].fillna(0)
+    monthly_orders['成交金额_last_year'] = monthly_orders['成交金额_last_year'].fillna(0)
 
-# Fill NaN values with 0 for missing months
-monthly_orders['成交金额_this_year'] = monthly_orders['成交金额_this_year'].fillna(0)
-monthly_orders['成交金额_last_year'] = monthly_orders['成交金额_last_year'].fillna(0)
+    # Plot the monthly order amounts for this year and last year
+    sns.lineplot(data=monthly_orders, x='创建时间', y='成交金额_this_year', label='This Year')
+    sns.lineplot(data=monthly_orders, x='创建时间', y='成交金额_last_year', label='Last Year')
+    plt.title(f'{exact_company_name}月度进案金额')
+    plt.xlabel('月份')
+    plt.ylabel('进案金额')
+    plt.legend()
+    plt.savefig('monthly_orders_comparison.png')
 
-# Plot the monthly order amounts for this year and last year
-plt.figure(figsize=(len(monthly_orders) * 1.5, 8))
-sns.lineplot(data=monthly_orders, x='创建时间', y='成交金额_this_year', label='This Year')
-sns.lineplot(data=monthly_orders, x='创建时间', y='成交金额_last_year', label='Last Year')
-plt.title(f'{company_name}月度成交金额')
-plt.xlabel('月份')
-plt.ylabel('成交金额')
-plt.legend()
-plt.savefig('sales_comparison.png')
-
-# Declare result var
-result = {
-    "type": "plot",
-    "value": "sales_comparison.png",
-    "data": monthly_orders,
-    "note": f"该图表显示了{company_name}当前年度和上一年的月度销售对比。数据按月过滤和分组，以计算每个月的总销售金额。"
-}
+    # Declare result var
+    result = {
+        "type": "plot",
+        "value": "monthly_orders_comparison.png",
+        "data": monthly_orders,
+        # In the note and chart label's texts, use exact company name we used during matching to make it clear
+        "note": f"该图表显示了{exact_company_name}当前年度和上一年的月度进案金额对比。数据按月过滤和分组，以计算每个月的总进案金额。"
+    }
 
 
 ### Your turn

@@ -38,16 +38,16 @@ import pandas as pd
 {% endif %}
 5. When plotting, please do not set a fix size of the image such as using `plt.figure(figsize=(10, 8))`, you should use some variable such as dataframe's row number for reference to find the suitable size, e.g. plt.figure(figsize=(len(df) * 1.5, 8))
 
-6. Always use `str.contains()` for filtering string values in a pandas DataFrame. Use `case=False` for case-insensitive matching. Do not use `==` for string comparisons.
-    - For example: Instead of `hlaptop_sales = df[df['product'] == 'laptop']`, use `laptop_sales = df[df['product'].str.contains('laptop', case=False, na=False)]`
+6. During filtering or string matching in dataframes,
+    - If the matching keyword is simple and need to be very exact such as person name, order number, use exact match
+        - For example: df[df['销售人员'] == '张三']
+    - If the you think user's keyword can be slightly simplified, use `str.contains()` for substring filtering / matching in a pandas DataFrame. Use `case=False` for case-insensitive matching. Do not use `==` for string comparisons.
+        - For example: Instead of `df[df['所在城市'] == '上海']`, use `df[df['所在城市'].str.contains('上海', case=False, na=False)]`
+    - For complex terms that substring matching or exact matching won't work. Use `get_best_matching_string` for fuzzy matching especitally in the case of company names.
+        - For example: get_best_matching_string(orders_df['母公司名称'], '上海一汽') >>> '一汽（上海）有限公司'
+7. Be extra careful about the columns and their values you want to perform merging on, make sure the columns' values you are performing merging on are what you expected or you will get all nan values if they are not compatible.
 
-7. In addition, when filtering based on a substring, ensure the term is specific enough to avoid unintended matches but at the same informative enough that do not lose any specific identifiers
-    - For example: Instead of filtering using `df[df['公司名称'].str.contains('苏州润晶高纯化工科技股份有限公司')] where "股份有限公司" can be a very general term, 
-                   or using `df[df['公司名称'].str.contains('润晶高纯化工科技')] which loses the information about '苏州', 
-                   **use `df[df['公司名称'].str.contains('苏州润晶高纯化工科技', case=False, na=False)]` to get the best outcome.**
-
-### The Must-Follow Instruction
-For privacy purpose, when plotting a chart or inside the result var, you should never use any company name directly from the dataframe column such as '公司名称' and '客户名称', you should always use the company name from the column '脱敏公司名称'.
+8. The texts in chart plotted and notes should be in the same language as the user's query.
 
 ### Your turn
 Fix the python code above and return the new python code:
