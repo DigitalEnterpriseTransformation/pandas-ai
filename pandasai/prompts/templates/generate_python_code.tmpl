@@ -41,31 +41,31 @@ import pandas as pd
         - For example: df[df['销售人员'] == '张三']
     - If the you think user's keyword can be slightly simplified, use `str.contains()` for substring filtering / matching in a pandas DataFrame. Use `case=False` for case-insensitive matching. Do not use `==` for string comparisons.
         - For example: Instead of `df[df['所在城市'] == '上海']`, use `df[df['所在城市'].str.contains('上海', case=False, na=False)]`
-    - For complex terms that substring matching or exact matching won't work. Use `get_best_matching_string` for fuzzy matching especitally in the case of company names.
-        - For example: get_best_matching_string(orders_df['母公司名称'], '上海一汽') >>> '一汽（上海）有限公司'
+    - For company name matching. Use the dedicated function provided: `find_most_matching_company_name`.
+        - For example: find_most_matching_company_name('上海一汽') >>> '一汽（上海）有限公司'
 7. Be extra careful about the columns and their values you want to perform merging on, make sure the columns' values you are performing merging on are what you expected or you will get all nan values if they are not compatible.
 
 8. The texts in chart plotted and notes should be in the same language as the user's query.
 
 ### Perfect Examples
-#### Question: 能提供北京华创自今年年初以来每个月的成交金额与去年同期的比较曲线吗？
+#### Sample Question 1: 能提供北京华创自今年年初以来每个月的成交金额与去年同期的比较曲线吗？
 
-#### Code generated:
+#### Sample Code Generated:
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Get the exact company name of '北京华创' in the dataframe using `get_best_matching_string` since exact match or substring match won't work
+# Get the exact company name of '北京华创' in the dataframe using `find_most_matching_company_name` 
 company_name = '北京华创'
 orders_df = dfs[x]
-exact_company_name = get_best_matching_string(orders_df['客户名称'], company_name)
+exact_company_name = find_most_matching_company_name(company_name, False)
 
 # Check if there is a match or not
 if not exact_company_name:
     result = {
         "type": "string",
         "value": f'在数据库中并没有找到与‘{company_name}’相关的订单信息，请给出更详细和准确的公司名。',
-        'note': "通过get_best_matching_string方法没有找到相关公司名，因为公司名不够具体或者数据库中没有相关的订单。"
+        'note': "通过company names方法没有找到相关公司名，因为公司名不够具体或者数据库中没有相关的订单。"
     }
 else:
     # Filter the orders for '北京华创'
@@ -103,10 +103,39 @@ else:
         "type": "plot",
         "value": "monthly_orders_comparison.png",
         "data": monthly_orders,
-        # In the note and chart label's texts, use exact company name we used during matching to make it clear
+        # In the note and chart label's texts, the exact company name is used
         "note": f"该图表显示了{exact_company_name}当前年度和上一年的月度进案金额对比。数据按月过滤和分组，以计算每个月的总进案金额。"
     }
 
+#### Sample Question 2: 能列出来自苏州市的成交金额最高的十个客户吗？
+
+#### Sample Code Generated:
+import pandas as pd
+
+# Get the dataframe with order information
+orders_df = dfs[0]
+
+# Get the dataframe with customer information
+customers_df = dfs[1]
+
+# Filter orders from companies located in Suzhou
+suzhou_orders = orders_df[orders_df['客户名称'].isin(customers_df[customers_df['所在城市'].str.contains('苏州市', case=False, na=False)]['客户名称'])]
+
+# Group by customer name and sum the '成交金额'
+suzhou_customers_summary = suzhou_orders.groupby('客户名称')['成交金额'].sum().reset_index()
+
+# Sort the customers by the total '成交金额' in descending order
+suzhou_customers_summary_sorted = suzhou_customers_summary.sort_values(by='成交金额', ascending=False)
+
+# Get the top 10 customers with the highest '成交金额'
+top_10_suzhou_customers = suzhou_customers_summary_sorted.head(10)
+
+# Declare result var
+result = {
+    "type": "dataframe",
+    "value": top_10_suzhou_customers,
+    "note": "这个dataframe中含有来自苏州市的前十大客户的信息，我的代码通过首先筛选出所有地址在苏州市的公司，然后对这些公司的成交金额进行汇总，最后按成交金额降序排列并取前10名。"
+}
 
 ### Your turn
 Based on the information provided above, answer the following query from user:
