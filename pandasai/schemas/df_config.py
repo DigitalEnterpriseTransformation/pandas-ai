@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, TypedDict, Dict
+from typing import Any, List, Optional, TypedDict
 
 from pandasai.constants import DEFAULT_CHART_DIRECTORY
 from pandasai.helpers.dataframe_serializer import DataframeSerializerType
@@ -30,7 +30,7 @@ class Config(BaseModel):
     log_server: LogServerConfig = None
     direct_sql: bool = False
     dataframe_serializer: DataframeSerializerType = DataframeSerializerType.CSV
-    company_names_mapping: Dict = None
+    plot_desensitization: bool = False
 
     class Config:
         arbitrary_types_allowed = True

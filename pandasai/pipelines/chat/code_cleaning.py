@@ -93,10 +93,6 @@ class CodeCleaning(BaseLogicUnit):
         code_to_run = input
         try:
             code_to_run = self.get_code_to_run(input, code_context)
-            company_names_mapping = context.config.company_names_mapping
-            if company_names_mapping:
-                for desensitized_name, original_name in company_names_mapping.items():
-                    code_to_run = code_to_run.replace(desensitized_name, original_name)
         except Exception as e:
             traceback_errors = traceback.format_exc()
             if self.on_failure:
@@ -135,6 +131,7 @@ class CodeCleaning(BaseLogicUnit):
                 logger=self._logger,
                 file_name=str(context.prompt_id),
                 save_charts_path_str=self._config.save_charts_path,
+                plot_desensitization=self._config.plot_desensitization
             )
         else:
             # Temporarily save generated chart to display
@@ -143,6 +140,7 @@ class CodeCleaning(BaseLogicUnit):
                 logger=self._logger,
                 file_name="temp_chart",
                 save_charts_path_str=f"{find_project_root()}/exports/charts",
+                plot_desensitization=self._config.plot_desensitization
             )
 
         # Reset used skills

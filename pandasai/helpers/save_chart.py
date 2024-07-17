@@ -11,6 +11,7 @@ def add_save_chart(
     logger: Logger,
     file_name: str,
     save_charts_path_str: str = None,
+    plot_desensitization: bool = False
 ) -> str:
     """
     Add line to code that save charts to a file, if plt.show() is called.
@@ -43,7 +44,8 @@ def add_save_chart(
         #         code = code[:index] + code_to_add + code[index:]
         
         # company name desensitization
-        code = insert_desensitized_plot_call(code)
+        if plot_desensitization:
+            code = insert_desensitized_plot_call(code)
             
         # to ensure the resulted plots are not cropped
         if "plt.savefig" in code and "bbox_inches='tight'" not in code:
