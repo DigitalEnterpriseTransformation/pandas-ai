@@ -112,11 +112,9 @@ else:
 #### Sample Code Generated:
 import pandas as pd
 
-# Get the dataframe with order information
-orders_df = dfs[0]
-
-# Get the dataframe with customer information
-customers_df = dfs[1]
+# Get the dataframes having the info needed
+orders_df = dfs[x]
+customers_df = dfs[y]
 
 # Filter orders from companies located in Suzhou
 suzhou_orders = orders_df[orders_df['客户名称'].isin(customers_df[customers_df['所在城市'].str.contains('苏州市', case=False, na=False)]['客户名称'])]
