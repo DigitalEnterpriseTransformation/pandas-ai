@@ -43,8 +43,8 @@ import pandas as pd
         - For example: df[df['销售人员'] == '张三']
     - If the you think user's keyword can be slightly simplified, use `str.contains()` for substring filtering / matching in a pandas DataFrame. Use `case=False` for case-insensitive matching. Do not use `==` for string comparisons.
         - For example: Instead of `df[df['所在城市'] == '上海']`, use `df[df['所在城市'].str.contains('上海', case=False, na=False)]`
-    - For complex terms that substring matching or exact matching won't work. Use `get_best_matching_string` for fuzzy matching especitally in the case of company names.
-        - For example: get_best_matching_string(orders_df['母公司名称'], '上海一汽') >>> '一汽（上海）有限公司'
+    - For company name matching. Use the dedicated function provided: `find_most_matching_company_name`.
+        - For example: find_most_matching_company_name('上海一汽') >>> '一汽（上海）有限公司'
 7. Be extra careful about the columns and their values you want to perform merging on, make sure the columns' values you are performing merging on are what you expected or you will get all nan values if they are not compatible.
 
 8. The texts in chart plotted and notes should be in the same language as the user's query.
